@@ -41,29 +41,7 @@ jobs:
       - uses: VirtusLab/scala-cli-setup@main
 
       - name: Run integration tests
-        run: |
-          declare -A examples=(
-            ["helloworld"]='Hello World!'
-            ["addition"]='7'
-            ['bubblesort:978365412']='123456789'
-            ['bubblesort:aZefcYbdX']='XYZabcdef'
-            ['rot13:Uryyb, Jbeyq!']='Hello, World!'
-            ['rot13:Hello, World!']='Uryyb, Jbeyq!'
-          )
-
-          for example in "${!examples[@]}"; do
-            name="$example"
-            input=""
-            expected="${examples[$example]}"
-
-            if [[ $example == *:* ]]; then
-              name="${example%%:*}"
-              input="${example##*:}"
-            fi
-
-            echo "Running examples/$name.b $input"
-            .github/scripts/test.sh "$name" "$expected" "$input"
-          done
+        run: .github/scripts/test.sh
 
   build-native:
     strategy:
