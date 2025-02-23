@@ -1,0 +1,25 @@
+# Scala CLI
+.scala-build/
+.bsp/
+
+# Metals
+.metals/
+.bloop/
+project/metals.sbt
+
+# VS Code
+.vscode/
+.history/
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Build
+target/
+out/
+
+# MacOS
+.DS_Store
