@@ -1,0 +1,63 @@
+name: Scala CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: coursier/cache-action@v6
+      - uses: VirtusLab/scala-cli-setup@main
+        with:
+          power: true
+
+      - name: Run tests
+        run: scala-cli test .
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: coursier/cache-action@v6
+      - uses: VirtusLab/scala-cli-setup@main
+        with:
+          power: true
+
+      - name: Check formatting
+        run: scala-cli format --check .
+
+  examples:
+    name: Examples
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: coursier/cache-action@v6
+      - uses: VirtusLab/scala-cli-setup@main
+        with:
+          power: true
+
+      - name: Run Hello World
+        run: |
+          output=$(scala-cli run . -- "$(cat examples/helloworld.b)")
+          test "$output" = "Hello World!"
+      - name: Run Addition
+        run: |
+          output=$(scala-cli run . -- "$(cat examples/addition.b)")
+          test "$output" = "7"
+      - name: Run Bubble Sort
+        run: |
+          output=$(echo -n "9c786a5412b" | scala-cli run . -- "$(cat examples/bubblesort.b)")
+          test "$output" = "12345678abc"
+      - name: Run ROT13
+        run: |
+          output=$(echo -n "Uryyb, Jbeyq!" | scala-cli run . -- "$(cat examples/rot13.b)")
+          test "$output" = "Hello, World!"
