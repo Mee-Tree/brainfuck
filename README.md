@@ -1,4 +1,4 @@
-# Brainfuck
+# Brainfuck ![Scala CI](https://github.com/Mee-Tree/brainfuck/actions/workflows/ci.yml/badge.svg)
 
 A simple [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) interpreter implemented in Scala, built primarily for the purpose of trying out [Scala CLI](https://scala-cli.virtuslab.org/).
 
