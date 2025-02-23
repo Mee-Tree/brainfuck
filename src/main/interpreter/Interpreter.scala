@@ -33,7 +33,7 @@ object Interpreter:
       case Command.IncByte    => EitherT.rightT(tape.inc)
       case Command.DecByte    => EitherT.rightT(tape.dec)
       case Command.OutputByte => EitherT(io.write(tape.get)).leftMap(InterpretError.IO(_)).as(tape)
-      case Command.InputByte  => EitherT(io.read).leftMap(InterpretError.IO(_)).map(tape.set)
+      case Command.InputByte  => EitherT(io.read).leftMap(InterpretError.IO(_)).map(_.fold(tape)(tape.set))
       case Command.Loop(cmds) => tape.iterateWhileM(eval(_, cmds))(_.get != 0)
 
 enum InterpretError(msg: String) extends Throwable(msg):

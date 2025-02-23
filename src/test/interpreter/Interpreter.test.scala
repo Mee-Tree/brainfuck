@@ -11,12 +11,19 @@ import dev.meetree.brainfuck.core.*
 class InterpreterSpec extends AnyFlatSpec with Matchers with EitherValues:
   import Interpreter.eval
 
-  case class Data(inputs: List[Byte], outputs: List[Byte], faulty: Boolean = false):
-    def read: (Data, Either[InputOutputError, Byte]) =
+  type F[A] = StateT[Id, Data, A]
+
+  given eof: EOF = EOF.NoChange
+  given InputOutput[F] with
+    def read: F[Either[InputOutputError, Option[Byte]]]      = StateT.apply(s => s.read)
+    def write(byte: Byte): F[Either[InputOutputError, Unit]] = StateT.apply(s => s.write(byte))
+
+  case class Data(inputs: List[Byte], outputs: List[Byte], faulty: Boolean = false)(using eof: EOF):
+    def read: (Data, Either[InputOutputError, Option[Byte]]) =
       inputs match
         case _ if faulty  => (this, Left(InputOutputError.Read("read")))
-        case head :: tail => (Data(tail, outputs, faulty), Right(head))
-        case Nil          => (this, Right(0))
+        case head :: tail => (Data(tail, outputs, faulty), Right(Some(head)))
+        case Nil          => (this, Right(eof.byte))
 
     def write(byte: Byte): (Data, Either[InputOutputError, Unit]) =
       if faulty then (this, Left(InputOutputError.Write("write")))
@@ -25,11 +32,6 @@ class InterpreterSpec extends AnyFlatSpec with Matchers with EitherValues:
   object Data:
     final val empty: Data  = Data(Nil, Nil)
     final val faulty: Data = Data.empty.copy(faulty = true)
-
-  type F[A] = StateT[Id, Data, A]
-  given InputOutput[F] with
-    def read: F[Either[InputOutputError, Byte]]              = StateT.apply(s => s.read)
-    def write(byte: Byte): F[Either[InputOutputError, Unit]] = StateT.apply(s => s.write(byte))
 
   val interpreter = Interpreter.make[F]
   import interpreter.interpret
