@@ -12,9 +12,9 @@ if [ ! -f "$file" ]; then
 fi
 
 if [ -n "$input" ]; then
-  output=$(echo -n "$input" | scala-cli run . -q -- "$(cat "$file")")
+  output=$(echo -n "$input" | scala-cli run . -q -- "$(< "$file")")
 else
-  output=$(scala-cli run . -q -- "$(cat "$file")")
+  output=$(scala-cli run . -q -- "$(< "$file")")
 fi
 
 if [ "$output" = "$expected" ]; then
