@@ -18,7 +18,7 @@ scala-cli test .
 
 You can find example programs in the `examples/` directory and run them using:
 ```bash
-scala-cli run . -- "$(cat path-to-example)"
+scala-cli run . -- "$(< path-to-example)"
 ```
 All examples are sourced from [wikipedia.org](https://en.wikipedia.org/wiki/Brainfuck#Examples) and [brainfuck.org](https://brainfuck.org/).
 

@@ -1,6 +1,7 @@
 //> using scala "3.3.5"
-//> using jvm 17
+//> using jvm 21
 
+//> using options -deprecation -feature -explain
 //> using options -Wunused:imports,implicits,privates -Werror
 //> using option -Ykind-projector
 
