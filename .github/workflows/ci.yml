@@ -6,58 +6,60 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: coursier/cache-action@v6
-      - uses: VirtusLab/scala-cli-setup@main
-        with:
-          power: true
-
-      - name: Run tests
-        run: scala-cli test .
-
   format:
-    name: Format
+    name: Code Formatting
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - uses: coursier/cache-action@v6
       - uses: VirtusLab/scala-cli-setup@main
-        with:
-          power: true
 
       - name: Check formatting
         run: scala-cli format --check .
 
-  examples:
-    name: Examples
+  test:
+    name: Unit Tests
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
       - uses: coursier/cache-action@v6
       - uses: VirtusLab/scala-cli-setup@main
-        with:
-          power: true
 
-      - name: Run Hello World
+      - name: Run unit tests
+        run: scala-cli test .
+
+  example:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: coursier/cache-action@v6
+      - uses: VirtusLab/scala-cli-setup@main
+
+      - name: Run integration tests
         run: |
-          output=$(scala-cli run . -- "$(cat examples/helloworld.b)")
-          test "$output" = "Hello World!"
-      - name: Run Addition
-        run: |
-          output=$(scala-cli run . -- "$(cat examples/addition.b)")
-          test "$output" = "7"
-      - name: Run Bubble Sort
-        run: |
-          output=$(echo -n "9c786a5412b" | scala-cli run . -- "$(cat examples/bubblesort.b)")
-          test "$output" = "12345678abc"
-      - name: Run ROT13
-        run: |
-          output=$(echo -n "Uryyb, Jbeyq!" | scala-cli run . -- "$(cat examples/rot13.b)")
-          test "$output" = "Hello, World!"
+          declare -A examples=(
+            ["helloworld"]='Hello World!'
+            ["addition"]='7'
+            ['bubblesort:978365412']='123456789'
+            ['bubblesort:aZefcYbdX']='XYZabcdef'
+            ['rot13:Uryyb, Jbeyq!']='Hello, World!'
+            ['rot13:Hello, World!']='Uryyb, Jbeyq!'
+          )
+
+          for example in "${!examples[@]}"; do
+            name="$example"
+            input=""
+            expected="${examples[$example]}"
+
+            if [[ $example == *:* ]]; then
+              name="${example%%:*}"
+              input="${example##*:}"
+            fi
+
+            echo "Running examples/$name.b $input"
+            .github/test.sh "$name" "$expected" "$input"
+          done
